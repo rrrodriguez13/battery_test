@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import glob
 
-# Get all battery data files (assuming they follow the naming pattern "battery*_out.text")
+# collects all the data files to be used
 LOG_FILES = sorted(glob.glob("battery*_out.text"))
 
-plt.style.use('bmh')
+plt.style.use('bmh')  # for style ;)
 plt.figure(figsize=(12, 6))
 
-colors_raw = plt.cm.spring(np.linspace(0, 1, len(LOG_FILES)))  # Colors for raw data
-colors_fit = plt.cm.winter(np.linspace(0, 1, len(LOG_FILES)))  # Contrasting colors for fitted lines
+colors_raw = plt.cm.spring(np.linspace(0, 1, len(LOG_FILES)))  # colors for raw data
+colors_fit = plt.cm.winter(np.linspace(0, 1, len(LOG_FILES)))  # contrasting colors for fitted lines
 
 for i, log_file in enumerate(LOG_FILES):
     timestamps, voltages = [], []
@@ -20,55 +20,55 @@ for i, log_file in enumerate(LOG_FILES):
             try:
                 t, v = map(float, line.split())
                 if v == 0.0:
-                    break  # Stop reading further once voltage is 0.0
-                timestamps.append(t)  # Keep time in seconds
-                voltages.append(v * 3.3 * 5)  # Scale voltage to match battery voltage
+                    break  # stops reading further once voltage is 0.0
+                timestamps.append(t)  # keeps time in seconds
+                voltages.append(v * 3.3 * 5)  # scales voltage to match battery voltage
             except ValueError:
-                continue  # Skip any corrupted lines
+                continue  # skips any fucked up lines
 
-    # Skip empty files
+    # skips empty files
     if not timestamps:
         continue
 
-    # Normalize timestamps
+    # normalizes timestamps
     start_time = timestamps[0]
     end_time = timestamps[-1]
-    normalized_time = [(t - start_time) / (end_time - start_time) * 100 for t in timestamps]  # Convert to percentage
+    normalized_time = [(t - start_time) / (end_time - start_time) * 100 for t in timestamps]  # converts to percentage
 
-    # Compute a fit curve along the average trend
-    window_size = 21  # Keep it an odd number for symmetry
-    fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid')
+    # computes a fit curve along the average trend
+    window_size = 21  # keeps it an odd number for symmetry
+    fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid') # convolving method as opposed to interp1d
 
-    # Trim timestamps to match fit_voltages
+    # trims timestamps to match fit_voltages
     fit_timestamps = normalized_time[:len(fit_voltages)]
 
-    # Ensure every other point is taken
-    normalized_time = normalized_time[::2]
-    voltages = voltages[::2]
-    fit_timestamps = fit_timestamps[::2]
-    fit_voltages = fit_voltages[::2]
+    # ensures every 10 points is taken (just looks cleaner while showing all the info needed)
+    normalized_time = normalized_time[::10]
+    voltages = voltages[::10]
+    fit_timestamps = fit_timestamps[::10]
+    fit_voltages = fit_voltages[::10]
 
-    # Plot raw voltage data
+    # plots raw voltage data
     trim = window_size // 2
     plt.plot(normalized_time[trim:-trim], voltages[trim:-trim], marker='.', linestyle='-', 
              color=colors_raw[i], alpha=0.5, lw=0.8, label=f"Battery {i+1}")
 
-    # Plot smoothed fit curve
+    # plots smoothed fit curve
     plt.plot(fit_timestamps, fit_voltages, linestyle='-', 
              color=colors_fit[i], lw=2.0, alpha=1, label=f"Battery {i+1} (Fitted)")
 
-# Format the plot
+# formats the plot
 plt.xlabel("Battery Percentage Remaining (%)")
 plt.ylabel("Voltage (V)")
 plt.title("Battery Voltage vs. Remaining Percentage")
 plt.ylim(10, 14.8)
 plt.legend()
 
-# Set y-ticks every 0.3V
+# sets y-ticks every 0.3V
 plt.yticks(np.arange(10, 15 + 0.3, 0.3))
 
-# Set x-ticks from 100% to 0% in steps of 10%
+# sets x-ticks from 100% to 0% in steps of 10%
 plt.xticks(np.arange(0, 110, 10), labels=[f"{100 - int(tick):d}%" for tick in np.arange(0, 110, 10)])
 
-# Show the plot
+# shows the actual plot
 plt.show()
