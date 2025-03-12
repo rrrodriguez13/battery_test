@@ -1,7 +1,7 @@
 import os
 
 # Define battery log files
-battery_files = [f"battery{i}_out.text" for i in range(1, 5)]
+battery_files = [f"battery{i}_out.text" for i in range(1, 10)]
 RESISTANCE = 5  # Ohms, used in current calculations
 SAMPLE_INTERVAL = 1  # seconds
 interval_hours = SAMPLE_INTERVAL / 3600  # Convert seconds to hours
