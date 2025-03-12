@@ -40,16 +40,18 @@ for i, log_file in enumerate(LOG_FILES):
     max_time = max(max_time, max(timestamps))
 
     # Compute a fit curve along the average trend
-    window_size = max(1, len(voltages) // 100)  # Smoothing window size
+    #window_size = max(1, len(voltages) // 100)  # Smoothing window size
+    window_size = 21
     fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid')
     fit_timestamps = timestamps[:len(fit_voltages)]  # Adjust timestamps accordingly
 
     # Plot raw voltage data (lighter, thin)
-    plt.plot(timestamps[:-35], voltages[:-35], marker='.', linestyle='-', 
+    trim = window_size // 2
+    plt.plot(timestamps[trim:-trim], voltages[trim:-trim], marker='.', linestyle='-', 
              color=colors_raw[i], alpha=0.5, lw=0.8, label=f"Battery {i+1}")
     
     # Plot smoothed fit curve (bold & contrasting)
-    plt.plot(fit_timestamps[:-35], fit_voltages[:-35], linestyle='-', 
+    plt.plot(timestamps[trim:-trim], fit_voltages, linestyle='-', 
              color=colors_fit[i], lw=2.0, alpha=1, label=f"Battery {i+1} (Fitted)")
 
 # Format the plot
