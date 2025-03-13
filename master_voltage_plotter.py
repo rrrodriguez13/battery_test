@@ -64,7 +64,7 @@ for i, log_file in enumerate(LOG_FILES):
 # formats the plot
 plt.xlabel("Time (min)")
 plt.ylabel("Voltage (V)")
-plt.title("Battery Voltage Over Time (Aligned Endpoints)")
+plt.title("Battery Voltage Over Time")
 plt.ylim(10, 14.8)
 plt.legend()
 
