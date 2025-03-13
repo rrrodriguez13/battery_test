@@ -1,7 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
 
-LOG_FILE = "battery6_out.text"
+# Set up argument parsing
+parser = argparse.ArgumentParser(description="Plot battery voltage over time.")
+parser.add_argument("batt_num", type=int, help="Battery number to plot")
+args = parser.parse_args()
+
+# Use the provided batt_num
+batt_num = args.batt_num
+LOG_FILE = f"battery{batt_num}_out.text"
 
 # creates lists used to store data
 timestamps = []
@@ -17,17 +25,26 @@ with open(LOG_FILE, "r") as f:
             timestamps.append(t / 60)  # converts time to minutes
             voltages.append(v * 3.3 * 5)  # scales voltage to match battery voltage
         except ValueError:
-            continue  # skips any fucked up lines
+            continue  # skips any corrupted lines
 
-# normalizes the timestamps by setting the first timestamp as 0
+# shifts timestamps so the last recorded time is zero (like the multi-file script)
 if timestamps:
-    start_time = timestamps[0]  # first timestamp
-    timestamps = [t - start_time for t in timestamps]  # adjusts all timestamps accordingly
+    end_time = timestamps[-1]  # last timestamp
+    timestamps = [t - end_time for t in timestamps]  # adjusts all timestamps accordingly
+
+# keeps track of the max duration for x-axis scaling
+max_time = abs(timestamps[0]) if timestamps else 1  # ensures a valid max_time
 
 # computes a fit curve along the average trend
 window_size = max(1, len(voltages) // 100)  # defines a smoothing window size
 fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid')
 fit_timestamps = timestamps[:len(fit_voltages)]  # adjusts timestamps accordingly
+
+# ensures every 10th point is used for clarity
+timestamps = timestamps[::10]
+voltages = voltages[::10]
+fit_timestamps = fit_timestamps[::10]
+fit_voltages = fit_voltages[::10]
 
 # plots the data
 plt.style.use('bmh')
@@ -38,17 +55,16 @@ plt.plot(fit_timestamps, fit_voltages, linestyle='-', color='firebrick', label="
 # formats the plots
 plt.xlabel("Time (min)")
 plt.ylabel("Voltage (V)")
-plt.title("Battery Voltage Over Time")
+plt.title(f"Battery #{batt_num} Voltage Over Time")
+plt.ylim(10, 15)  # ensures ideal viewing experience
 plt.legend()
 
-# sets y-ticks every 0.5V
-plt.yticks(np.arange(10, 15 + 0.3, 0.3))  # ensures ticks every 0.5V
+# sets y-ticks every 0.3V
+plt.yticks(np.arange(10, 15 + 0.3, 0.3))  # ensures ticks every 0.3V
 
-# generates x-ticks
-xticks = np.arange(0, max(timestamps), step=max(timestamps)//20) # adding more x-ticks for accurate time-keeping
-plt.xticks(xticks, labels=[f"{int(tick):d}" for tick in xticks[::-1]]) # sets x-tick labels in reverse order
+# generates x-ticks dynamically, aligned with multi-file script
+xticks = np.linspace(-max_time, 0, num=10)  # ensures they align with the new zero-aligned time
+plt.xticks(xticks, labels=[f"{int(abs(tick))}" for tick in xticks])  # keeps labels positive
 
 # shows the plot
 plt.show()
-
-

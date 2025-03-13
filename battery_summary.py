@@ -1,7 +1,7 @@
 import os
 
 # defines battery log files
-battery_files = [f"battery{i}_out.text" for i in range(1, 10)]
+battery_files = [f"battery{i}_out.text" for i in range(1, 11)]
 RESISTANCE_EQ = 1.25  # equivalent resistance in Ohms for 4 parallel 5 Ohm resistors
 SAMPLE_INTERVAL = 1  # seconds (data taken once per second)
 interval_hours = SAMPLE_INTERVAL / 3600  # converts seconds to hours
@@ -10,7 +10,7 @@ INITIAL_VOLTAGE = 12.8  # initial battery voltage is 12.8V (advertised) XXX it's
 # defines the advertised Ah ratings of the batteries
 advertised_Ah = {
     "battery1": 100, "battery2": 100, "battery3": 100, "battery4": 100, "battery5": 100,
-    "battery6": 20, "battery7": 20, "battery8": 20, "battery9": 20
+    "battery6": 20, "battery7": 20, "battery8": 20, "battery9": 20, "battery10": 20
 }
 
 # data storage for the table
