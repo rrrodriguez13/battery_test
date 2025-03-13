@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-LOG_FILE = "battery2_out.text"
+LOG_FILE = "battery6_out.text"
 
 # creates lists used to store data
 timestamps = []
