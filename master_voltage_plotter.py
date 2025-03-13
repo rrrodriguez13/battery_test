@@ -66,6 +66,7 @@ plt.xlabel("Time (min)")
 plt.ylabel("Voltage (V)")
 plt.title("Battery Voltage Over Time")
 plt.ylim(10, 14.8)
+#plt.ylim(12.8, 13.5)
 plt.legend()
 
 # sets y-ticks every 0.3V

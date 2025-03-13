@@ -62,6 +62,7 @@ plt.xlabel("Battery Percentage Remaining (%)")
 plt.ylabel("Voltage (V)")
 plt.title("Battery Voltage vs. Remaining Percentage")
 plt.ylim(10, 14.8)
+#plt.ylim(12.8, 13.5)
 plt.legend()
 
 # sets y-ticks every 0.3V
