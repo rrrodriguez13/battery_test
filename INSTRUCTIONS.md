@@ -1,11 +1,7 @@
 
 1. run usb_test.py to collect data
 
-to run usb_test.py:
-
-mpremote connect /dev/ttyACM0 run usb_test.py | tee battery{i}_out.txt
-  
-where i = # of battery being tested
+    to run usb_test.py: "mpremote connect /dev/ttyACM0 run usb_test.py | tee battery{i}_out.txt" where i = # of battery being tested
 
 2. run battery_summary.py to show table of all battery data and calculations
 
