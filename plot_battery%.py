@@ -25,38 +25,45 @@ try:
                 timestamps.append(t)  # keeps time in seconds
                 voltages.append(v * 3.3 * 5)  # scales voltage to match battery voltage
             except ValueError:
-                continue  # skips fucked up lines
+                continue  # skips corrupted lines
 except FileNotFoundError:
     print(f"Error: {LOG_FILE} not found.")
     exit(1)
 
-# skips stupide empty files
+# skips empty files
 if not timestamps:
     print(f"Error: No valid data in {LOG_FILE}.")
     exit(1)
 
-# normalizes timestamps
+# normalizes timestamps to percentage remaining
 start_time, end_time = timestamps[0], timestamps[-1]
 normalized_time = [(t - start_time) / (end_time - start_time) * 100 for t in timestamps]  # converts to percentage
 
 # computes a fit curve along the average trend
 window_size = 121  # odd number for symmetry
-fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid')
+fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='same')  # changed to 'same' for better alignment
 
 # trims timestamps to match fit_voltages
 fit_timestamps = normalized_time[:len(fit_voltages)]
 
-# downsamples for clarity
-normalized_time = normalized_time[::10]
-voltages = voltages[::10]
+# converts lists to NumPy arrays to avoid slicing errors
+normalized_time = np.array(normalized_time)
+voltages = np.array(voltages)
+
+# downsampling after smoothing
 fit_timestamps = fit_timestamps[::10]
 fit_voltages = fit_voltages[::10]
+normalized_time = normalized_time[::10]
+voltages = voltages[::10]
 
 # plots data
 plt.style.use('bmh')
 plt.figure(figsize=(12, 6))
-plt.plot(normalized_time, voltages, marker='.', linestyle='-', color='royalblue', alpha=0.5, lw=0.8, label=f"Battery {batt_num}")
-plt.plot(fit_timestamps, fit_voltages, linestyle='-', color='firebrick', lw=1, alpha=1, label=f"Battery {batt_num} (Fitted)")
+
+# applies consistent trimming for alignment
+trim = window_size // 2
+plt.plot(normalized_time[trim:], voltages[trim:], marker='.', linestyle='-', color='royalblue', alpha=0.5, lw=0.8, label=f"Battery {batt_num}")
+plt.plot(fit_timestamps[trim:], fit_voltages[trim:], linestyle='-', color='firebrick', lw=1, alpha=1, label=f"Battery {batt_num} (Fitted)")
 
 # formats the plot
 plt.xlabel("Battery Percentage Remaining (%)")
