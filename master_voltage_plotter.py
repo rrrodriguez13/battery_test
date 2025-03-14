@@ -40,7 +40,7 @@ for i, log_file in enumerate(LOG_FILES):
     max_time = max(max_time, abs(timestamps[0]))  # stores longest time before reaching 0
 
     # computes a fit curve along the average trend
-    window_size = 21  # keeps it an odd number for symmetry 
+    window_size = 121  # keeps it an odd number for symmetry 
     fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid') # convolution method
 
     # trims timestamps to match fit_voltages

@@ -49,7 +49,7 @@ fit_voltages = fit_voltages[::10]
 # plots the data
 plt.style.use('bmh')
 plt.figure(figsize=(10, 5))
-plt.plot(timestamps[:-35], voltages[:-35], marker='.', linestyle='-', color='royalblue', label="Voltage", lw=0.8)
+#plt.plot(timestamps[:-35], voltages[:-35], marker='.', linestyle='-', color='royalblue', label="Voltage", lw=0.8)
 plt.plot(fit_timestamps, fit_voltages, linestyle='-', color='firebrick', label="Voltage Fit", lw=1.2)  # curve fit
 
 # formats the plots

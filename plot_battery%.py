@@ -40,7 +40,7 @@ start_time, end_time = timestamps[0], timestamps[-1]
 normalized_time = [(t - start_time) / (end_time - start_time) * 100 for t in timestamps]  # converts to percentage
 
 # computes a fit curve along the average trend
-window_size = 21  # odd number for symmetry
+window_size = 121  # odd number for symmetry
 fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid')
 
 # trims timestamps to match fit_voltages

@@ -36,7 +36,7 @@ for i, log_file in enumerate(LOG_FILES):
     normalized_time = [(t - start_time) / (end_time - start_time) * 100 for t in timestamps]  # converts to percentage
 
     # computes a fit curve along the average trend
-    window_size = 21  # keeps it an odd number for symmetry
+    window_size = 121  # keeps it an odd number for symmetry
     fit_voltages = np.convolve(voltages, np.ones(window_size)/window_size, mode='valid') # convolving method as opposed to interp1d
 
     # trims timestamps to match fit_voltages
