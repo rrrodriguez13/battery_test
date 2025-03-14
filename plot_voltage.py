@@ -36,7 +36,7 @@ if timestamps:
 max_time = abs(timestamps[0]) if timestamps else 1
 
 # Compute a fit curve along the average trend using a moving average
-window_size = 121  # defines a smoothing window size
+window_size = 21  # defines a smoothing window size
 fit_voltages = np.convolve(voltages, np.ones(window_size) / window_size, mode='same')
 fit_timestamps = timestamps[:len(fit_voltages)]  # adjust timestamps accordingly
 
