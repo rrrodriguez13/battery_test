@@ -1,42 +1,49 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Use the provided log file
-LOG_FILE = "pwm_test.text"
+def read_data(filename, scale=3.3*5):
+    """Read data from a space-separated file and return timestamps and scaled voltages.
+    Stops reading if a voltage value of 0.0 is encountered.
+    """
+    timestamps = []
+    voltages = []
+    with open(filename, "r") as f:
+        for line in f:
+            try:
+                t, v = map(float, line.split())
+                if v == 0.0:
+                    break  # stop reading when voltage is 0.0
+                timestamps.append(t)
+                voltages.append(v * scale)
+            except ValueError:
+                continue  # skip any lines that cannot be parsed
+    if timestamps:
+        start_time = timestamps[0]
+        timestamps = [t - start_time for t in timestamps]  # shift so the first time is 0
+    return timestamps, voltages
 
-# Create lists to store data
-timestamps = []
-voltages = []
+# Read data from both files
+pwm_timestamps, pwm_voltages = read_data("pwm_test.text")
+mppt_timestamps, mppt_voltages = read_data("mppt_test.text")
 
-# Read space-separated file (text)
-with open(LOG_FILE, "r") as f:
-    for line in f:
-        try:
-            t, v = map(float, line.split())
-            if v == 0.0:
-                break  # stops reading further once voltage is 0.0
-            timestamps.append(t)          # timestamps remain in seconds
-            voltages.append(v * 3.3 * 5)    # scale voltage to match battery voltage
-        except ValueError:
-            continue  # skip any corrupted lines
-
-# Shift timestamps so that the first recorded time is zero
-if timestamps:
-    start_time = timestamps[0]
-    timestamps = [t - start_time for t in timestamps]
-
-# Plot the data
+# Set up the plot
 plt.style.use('bmh')
 plt.figure(figsize=(10, 5))
-plt.plot(timestamps, voltages, marker='.', linestyle='-', color='royalblue',
-         label="Voltage", lw=0.8)
+
+# Plot PWM data
+plt.plot(pwm_timestamps, pwm_voltages, marker='.', linestyle='-', color='royalblue',
+         label="PWM Voltage", lw=0.8, alpha=0.8)
+
+# Plot MPPT data
+plt.plot(mppt_timestamps, mppt_voltages, marker='.', linestyle='-', color='firebrick',
+         label="MPPT Voltage", lw=0.8, alpha=0.8)
+
 plt.xlabel("Time (s)")
 plt.ylabel("Voltage (V)")
-plt.title("PWM Voltage Over Time")
-#plt.ylim(10, 12)
+plt.title("Voltage Over Time")
 plt.legend()
 
-# Set y-ticks every 0.3V
+# Set y-ticks every 0.3V between 10 and 12 (adjust if needed)
 plt.yticks(np.arange(10, 12 + 0.3, 0.3))
 
 plt.show()
