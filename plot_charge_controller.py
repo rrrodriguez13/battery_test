@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def read_data(filename, scale=3.3*5):
-    """Read data from a space-separated file and return timestamps and scaled voltages.
+    """
+    Reads data from a space-separated file and return timestamps and scaled voltages.
     Stops reading if a voltage value of 0.0 is encountered.
     """
     timestamps = []
@@ -23,8 +24,8 @@ def read_data(filename, scale=3.3*5):
     return timestamps, voltages
 
 # Read data from both files
-pwm_timestamps, pwm_voltages = read_data("pwm_test.text")
-mppt_timestamps, mppt_voltages = read_data("mppt_test.text")
+pwm_timestamps, pwm_voltages = read_data("pwm_test0.text")
+mppt_timestamps, mppt_voltages = read_data("mppt_test0.text")
 
 # Set up the plot
 plt.style.use('bmh')

@@ -12,6 +12,5 @@ try:
         # Calculate elapsed time in seconds
         elapsed_time = ticks_diff(ticks_us(), start_time) / 1_000_000
         print(elapsed_time, sensor_value)
-        sleep(SAMPLE_INTERVAL)
 except KeyboardInterrupt:
     print("Program interrupted. Exiting gracefully.")

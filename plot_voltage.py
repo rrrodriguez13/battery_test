@@ -25,7 +25,7 @@ with open(LOG_FILE, "r") as f:
             timestamps.append(t / 60)         # convert time to minutes
             voltages.append(v * 3.3 * 5)        # scale voltage to match battery voltage
         except ValueError:
-            continue  # skip any corrupted lines
+            continue  # skips any corrupted lines
 
 # Shift timestamps so the last recorded time is zero (like the multi-file script)
 if timestamps:

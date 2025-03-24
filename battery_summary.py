@@ -6,7 +6,7 @@ battery_files = [f"battery{i}_out.text" for i in range(1, 12)]
 RESISTANCE_EQ = 1.25  # equivalent resistance in Ohms for 4 parallel 5 Ohm resistors
 SAMPLE_INTERVAL = 1  # seconds (data taken once per second)
 interval_hours = SAMPLE_INTERVAL / 3600  # converts seconds to hours
-INITIAL_VOLTAGE = 12.8  # initial battery voltage is 12.8V (advertised) XXX it's actually higher like closer to 13.4V
+INITIAL_VOLTAGE = 14.4  # initial battery voltage is 12.8V (advertised) XXX it's actually higher like closer to 13.4V
 
 # defines the advertised Ah ratings of the batteries
 advertised_Ah = {
@@ -68,7 +68,7 @@ for file in battery_files:
     fit_currents = 5 * (fit_voltages / RESISTANCE_EQ)
 
     # computes Amp-hours (Ah) based on the fitted currents
-    total_Ah = np.sum(3 * fit_currents * interval_hours)
+    total_Ah = np.sum(fit_currents * interval_hours)
 
     # computes total energy discharged (Watt-hours)
     total_Wh = sum((5 * v) * current * interval_hours for v, current in zip(voltages, battery_currents))

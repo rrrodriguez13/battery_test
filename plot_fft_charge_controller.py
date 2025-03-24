@@ -24,8 +24,8 @@ def read_data(filename, scale=3.3*5):
     return np.array(timestamps), np.array(voltages)
 
 # reads data from both files
-pwm_timestamps, pwm_voltages = read_data("pwm_test.text")
-mppt_timestamps, mppt_voltages = read_data("mppt_test.text")
+pwm_timestamps, pwm_voltages = read_data("pwm_test0.text")
+mppt_timestamps, mppt_voltages = read_data("mppt_test0.text")
 
 # computes the mean value of pwm and mppt voltages
 mean_pwm = np.mean(pwm_voltages)
@@ -35,22 +35,28 @@ mean_mppt = np.mean(mppt_voltages)
 pwm_voltages_centered = pwm_voltages - mean_pwm
 mppt_voltages_centered = mppt_voltages - mean_mppt
 
+# Define the known sampling interval explicitly
+sampling_interval = 2e-6  # seconds (2 microseconds)
+
 # computes the FFT of each data set
 pwm_fft = np.fft.fft(pwm_voltages_centered)
 mppt_fft = np.fft.fft(mppt_voltages_centered)
 
-# computes corresponding frequencies
-pwm_freqs = np.fft.fftfreq(len(pwm_voltages_centered), d=np.mean(np.diff(pwm_timestamps)))
-mppt_freqs = np.fft.fftfreq(len(mppt_voltages_centered), d=np.mean(np.diff(mppt_timestamps)))
+# computes corresponding frequencies explicitly with correct sampling interval
+pwm_freqs = np.fft.fftfreq(len(pwm_voltages_centered), d=sampling_interval)
+mppt_freqs = np.fft.fftfreq(len(mppt_voltages_centered), d=sampling_interval)
 
 # plots FFT results
 plt.style.use('bmh')
 plt.figure(figsize=(12, 6))
-plt.plot(np.fft.fftshift(pwm_freqs), np.fft.fftshift(np.abs(pwm_fft)), label="PWM FFT", color='royalblue', lw=1)
-plt.plot(np.fft.fftshift(mppt_freqs), np.fft.fftshift(np.abs(mppt_fft)), label="MPPT FFT", color='firebrick', alpha=0.8, lw=1)
-plt.xlabel("Frequency (Hz)") # Hz instead of Mhz for better clarity
+plt.plot(np.fft.fftshift(pwm_freqs), np.fft.fftshift(np.abs(pwm_fft)),
+         label="PWM FFT", color='royalblue', lw=1)
+plt.plot(np.fft.fftshift(mppt_freqs), np.fft.fftshift(np.abs(mppt_fft)),
+         label="MPPT FFT", color='firebrick', alpha=0.8, lw=1)
+plt.xlabel("Frequency (Hz)")
 plt.ylabel("Magnitude")
 plt.title("FFT of PWM and MPPT Voltage Signals")
-plt.xlim(0, 50)
+plt.xlim(0, 5e4)  # Adjusted to clearly show relevant frequencies (up to 500 kHz)
 plt.legend()
 plt.show()
+
