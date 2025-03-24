@@ -24,8 +24,8 @@ def read_data(filename, scale=3.3*5):
     return timestamps, voltages
 
 # Read data from both files
-pwm_timestamps, pwm_voltages = read_data("pwm_test0.text")
-mppt_timestamps, mppt_voltages = read_data("mppt_test0.text")
+pwm_timestamps, pwm_voltages = read_data("pwm_test.text")
+mppt_timestamps, mppt_voltages = read_data("mppt_test.text")
 
 # Set up the plot
 plt.style.use('bmh')
