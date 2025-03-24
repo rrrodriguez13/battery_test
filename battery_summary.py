@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 # defines battery log files
 battery_files = [f"battery{i}_out.text" for i in range(1, 12)]
@@ -47,6 +48,11 @@ for file in battery_files:
     start_time = timestamps[0]
     timestamps = [t - start_time for t in timestamps]  # makes first time 0 so counting up makes sense
 
+    # computes a fit curve along the average trend using a moving average
+    window_size = 21  # defines a smoothing window size
+    fit_voltages = np.convolve(voltages, np.ones(window_size) / window_size, mode='same')
+    fit_timestamps = timestamps[:len(fit_voltages)]  # adjust timestamps accordingly
+
     # gets final values
     discharge_time = timestamps[-1]  # last recorded timestamp (seconds)
     final_voltage = voltages[-1]  # last voltage reading
@@ -55,11 +61,14 @@ for file in battery_files:
     currents = [v / RESISTANCE_EQ for v in voltages]  # this is the current in one resistor
     battery_currents = [5 * c for c in currents]  # total current from battery XXX 5 is the number of resistors
 
-    # calculates expected Ah using initial current and discharge time (this is given ideal conditions)
-    expected_Ah = (INITIAL_VOLTAGE / RESISTANCE_EQ) * (discharge_time / 3600)  # Convert seconds to hours
+    # calculates ideal Ah using initial current and discharge time (this is given ideal conditions)
+    ideal_Ah = (INITIAL_VOLTAGE / RESISTANCE_EQ) * (discharge_time / 3600)  # converts seconds to hours
 
-    # computes Amp-hours (Ah)
-    total_Ah = sum(current * interval_hours for current in battery_currents)
+    # calculates fitted currents using Ohm's Law based on the moving average voltages
+    fit_currents = 5 * (fit_voltages / RESISTANCE_EQ)
+
+    # computes Amp-hours (Ah) based on the fitted currents
+    total_Ah = np.sum(3 * fit_currents * interval_hours)
 
     # computes total energy discharged (Watt-hours)
     total_Wh = sum((5 * v) * current * interval_hours for v, current in zip(voltages, battery_currents))
@@ -70,7 +79,7 @@ for file in battery_files:
 
     # stores in table format
     battery_data.append([battery_name, adv_Ah, discharge_time, round(discharge_time / 3600, 2),
-                         round(final_voltage, 3), round(expected_Ah, 2), round(total_Ah, 3), round(total_Wh, 3)])
+                         round(final_voltage, 3), round(ideal_Ah, 2), round(total_Ah, 3), round(total_Wh, 3)])
 
 # prints the results in table format
 if battery_data:

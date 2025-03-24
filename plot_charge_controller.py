@@ -44,6 +44,6 @@ plt.title("Voltage Over Time")
 plt.legend()
 
 # Set y-ticks every 0.3V between 10 and 12 (adjust if needed)
-plt.yticks(np.arange(10, 12 + 0.3, 0.3))
+plt.yticks(np.arange(12, 14 + 0.1, 0.1))
 
 plt.show()
