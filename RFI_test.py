@@ -1,16 +1,23 @@
 from machine import Pin, ADC
-from time import sleep, ticks_us, ticks_diff
+from time import ticks_us, ticks_diff
 
 try:
-    SAMPLE_INTERVAL = 0.001  # measures every 0.001 second
-    analogue_input = ADC(Pin(28))  # ADC pin
-    start_time = ticks_us()  # capture the starting time in microseconds
-    duration = 5 * 1_000_000  # duration in microseconds (5 seconds)
+    SAMPLE_INTERVAL = 0.001  # 1 ms between samples
+    analogue_input = ADC(Pin(28))
+    start_time = ticks_us()
+    duration = 5 * 1_000_000  # 5 seconds in microseconds
+    data = []  # pre-allocates a list for storing samples
     
     while ticks_diff(ticks_us(), start_time) < duration:
-        sensor_value = analogue_input.read_u16() / 65535  # reads sensor value
-        # Calculate elapsed time in seconds
+        sensor_value = analogue_input.read_u16() / 65535
         elapsed_time = ticks_diff(ticks_us(), start_time) / 1_000_000
-        print(elapsed_time, sensor_value)
+        data.append((elapsed_time, sensor_value))
+        # Optionally, you can add a sleep if needed:
+        # sleep(SAMPLE_INTERVAL)
+    
+    # once data acquisition is complete, output all data at once
+    for sample in data:
+        print(sample[0], sample[1])
+        
 except KeyboardInterrupt:
     print("Program interrupted. Exiting gracefully.")

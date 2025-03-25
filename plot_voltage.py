@@ -51,7 +51,7 @@ trim = window_size // 2
 
 # Plot the data (trim both arrays from the start so they align)
 plt.style.use('bmh')
-plt.figure(figsize=(10, 5))
+plt.figure(figsize=(12, 5))
 plt.plot(timestamps[trim:], voltages[trim:], marker='.', linestyle='-', color='royalblue',
          label="Voltage", lw=0.8)
 plt.plot(fit_timestamps[trim:], fit_voltages[trim:], linestyle='-', color='firebrick',
