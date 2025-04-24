@@ -3,7 +3,7 @@ import numpy as np
 import csv
 
 # defines battery log files
-battery_files = [f"battery{i}_out.text" for i in range(1, 12)]
+battery_files = [f"battery{i}_out.text" for i in range(1, 13)]
 RESISTANCE_EQ = 1.25  # equivalent resistance in Ohms for 4 parallel 5 Ohm resistors
 SAMPLE_INTERVAL = 1  # seconds (data taken once per second)
 interval_hours = SAMPLE_INTERVAL / 3600  # converts seconds to hours
@@ -13,7 +13,7 @@ INITIAL_VOLTAGE = 12.8  # initial battery voltage is 12.8V (advertised)
 advertised_Ah = {
     "battery1": 100, "battery2": 100, "battery3": 100, "battery4": 100, "battery5": 100,
     "battery6": 20, "battery7": 20, "battery8": 20, "battery9": 20, "battery10": 20,
-    "battery11": 20
+    "battery11": 20, "battery12": "100"
 }
 
 # data storage for the table
