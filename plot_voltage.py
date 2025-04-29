@@ -11,6 +11,9 @@ args = parser.parse_args()
 batt_num = args.batt_num
 LOG_FILE = f"battery{batt_num}_out.text"
 
+# Determine correct scaling factor
+SCALE_FACTOR = 3.3 * 5  # 5x voltage divider in all cases
+
 # Create lists to store data
 timestamps = []
 voltages = []
@@ -21,9 +24,12 @@ with open(LOG_FILE, "r") as f:
         try:
             t, v = map(float, line.split())
             if v == 0.0:
-                break  # stops reading further once voltage is 0.0
+                if timestamps:
+                    break  # if we already have data, stop when voltage is 0.0
+                else:
+                    continue  # otherwise skip early 0.0
             timestamps.append(t / 60)         # convert time to minutes
-            voltages.append(v * 3.3 * 5)        # scale voltage to match battery voltage
+            voltages.append(v * SCALE_FACTOR)  # apply scaling
         except ValueError:
             continue  # skips any corrupted lines
 
@@ -35,7 +41,7 @@ if timestamps:
 # Keep track of the max duration for x-axis scaling
 max_time = abs(timestamps[0]) if timestamps else 1
 
-# computes a fit curve along the average trend using a moving average
+# Computes a fit curve along the average trend using a moving average
 window_size = 41  # defines a smoothing window size
 fit_voltages = np.convolve(voltages, np.ones(window_size) / window_size, mode='valid')
 fit_timestamps = timestamps[:len(fit_voltages)]  # adjust timestamps accordingly
@@ -59,11 +65,11 @@ plt.plot(fit_timestamps[trim:], fit_voltages[trim:], linestyle='-', color='fireb
 plt.xlabel("Time (min)")
 plt.ylabel("Voltage (V)")
 plt.title(f"Battery #{batt_num} Voltage Over Time")
-plt.ylim(10, 15)
+# plt.ylim(10, 15)  # commented out, not enforcing y-axis limits
 plt.legend()
 
 # Set y-ticks every 0.3V
-plt.yticks(np.arange(10, 15 + 0.3, 0.3))
+plt.yticks(np.arange(0, 15, 0.3))  # range from 0V to 15V
 
 # Generate x-ticks dynamically (the axis is negative-to-zero, so we label them as positive values)
 xticks = np.linspace(-max_time, 0, num=10)
