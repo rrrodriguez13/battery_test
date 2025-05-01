@@ -15,7 +15,6 @@ try:
         sensor_value = analogue_input.read_u16() / 65535  # Normalized [0, 1]
         print(time(), sensor_value)
         if sensor_value < CUTOFF_SENSOR_VALUE:
-            print("Battery voltage dropped below 10V! Shutting down.")
             break
         sleep(SAMPLE_INTERVAL)
 except KeyboardInterrupt:
