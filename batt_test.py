@@ -1,35 +1,22 @@
 from machine import Pin, ADC
 from time import sleep, time
 
-# Choose your battery setup here:
-BATTERY_TYPE = "2S"  # Change to "4S" when needed
-
-# Set cutoff based on battery type
-if BATTERY_TYPE == "4S":
-    CUTOFF_VALUE = 0.567  # ~11.2V
-elif BATTERY_TYPE == "2S":
-    CUTOFF_VALUE = 0.283  # ~5.6V
-else:
-    raise ValueError("Unsupported battery type")
-
 SAMPLE_INTERVAL = 1  # seconds
+CUTOFF_SENSOR_VALUE = 2.0 / 3.3  # ~0.606 
 
-analogue_input = ADC(Pin(28))  # ADC pin connected to voltage divider
-load_switch = Pin(15, Pin.OUT)  # Pin to control load
-load_switch.value(1)  # Enable load
+'''
+(10V minimum for 12.8V battery and for 5:1 voltage divider --> (1.1k/5.5k ohm resistor chain for pico) 10/5 = 2.0V)
+sensor_value = 2.0V/3.3V (3.3V limit for pico ADC) ~ 0.606
+'''
 
 try:
+    analogue_input = ADC(Pin(28))  # ADC pin
     while True:
-        sensor_value = analogue_input.read_u16() / 65535
+        sensor_value = analogue_input.read_u16() / 65535  # Normalized [0, 1]
         print(time(), sensor_value)
-
-        if sensor_value < CUTOFF_VALUE:
-            print(f"Voltage too low for {BATTERY_TYPE}. Disconnecting load.")
-            load_switch.value(0)
+        if sensor_value < CUTOFF_SENSOR_VALUE:
+            print("Battery voltage dropped below 10V! Shutting down.")
             break
-
         sleep(SAMPLE_INTERVAL)
-
 except KeyboardInterrupt:
-    print("Interrupted. Turning off load.")
-    load_switch.value(0)
+    print("Program interrupted. Exiting gracefully.")

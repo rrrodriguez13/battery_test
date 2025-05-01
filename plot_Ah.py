@@ -7,85 +7,85 @@ RESISTANCE_EQ = 1.25         # Equivalent resistance in Ohms (4 parallel 5Ω res
 SAMPLE_INTERVAL = 1          # Time step in seconds
 interval_hours = SAMPLE_INTERVAL / 3600  # Convert seconds to hours
 
-# Set up argument parsing for a single battery
-parser = argparse.ArgumentParser(description="Plot battery voltage vs. remaining charge for a single battery.")
-parser.add_argument("batt_num", type=int, help="Battery number to plot")
+# Set up argument parsing for battery name or number
+parser = argparse.ArgumentParser(description="Plot battery voltage vs. remaining charge.")
+parser.add_argument("batt_name", type=str, help="Battery number or label (e.g., 4S, 2S, 1, 5)")
 args = parser.parse_args()
 
-# Use the provided batt_num
-batt_num = args.batt_num
-LOG_FILE = f"battery{batt_num}_out.text"
+# Label mapping
+label_map = {
+    "4S": "battery12",
+    "2S": "battery13"
+}
+display_map = {
+    "battery12": "4S",
+    "battery13": "2S"
+}
+
+# Normalize battery key and filename
+batt_key = label_map.get(args.batt_name.upper(), f"battery{args.batt_name}")
+LOG_FILE = f"{batt_key}_out.text"
+display_name = display_map.get(batt_key, args.batt_name)
 
 # Determine correct scaling factor
-SCALE_FACTOR = 3.3 * 5  # 5x voltage divider in all cases
+SCALE_FACTOR = 3.3 * 5  # Adjust to your actual divider
 
-# Create lists to store data
+# Read data
 timestamps = []
 voltages = []
 
-# Read data from the log file
 with open(LOG_FILE, "r") as f:
     for line in f:
         try:
             t, v = map(float, line.split())
             if v == 0.0:
                 if timestamps:
-                    break  # if already collected data, stop at 0.0
+                    break
                 else:
-                    continue  # otherwise skip early 0.0
-            timestamps.append(t)              # Time in seconds
-            voltages.append(v * SCALE_FACTOR)  # Apply scaling
+                    continue
+            timestamps.append(t)
+            voltages.append(v * SCALE_FACTOR)
         except ValueError:
-            continue  # Skip corrupted lines
+            continue
 
 if not timestamps:
     print(f"No valid data found in {LOG_FILE}.")
     exit(1)
 
-# Normalize timestamps so that the last recorded time is zero
+# Normalize time
 discharge_time = timestamps[-1]
 timestamps = [t - discharge_time for t in timestamps]
 
-# Compute current at each time step using Ohm's Law: I = V / R
+# Compute current and Ah
 currents = [v / RESISTANCE_EQ for v in voltages]
-
-# Compute cumulative ampere-hours (Ah) used at each time step
 Ah_values = np.cumsum([I * interval_hours for I in currents])
-total_Ah = Ah_values[-1]  # Total Ah used
-Ah_remaining = total_Ah - np.array(Ah_values)  # Remaining charge
+total_Ah = Ah_values[-1]
+Ah_remaining = total_Ah - np.array(Ah_values)
 
-# Compute a fit curve using a moving average filter
-window_size = 21  # Must be odd for symmetry
+# Fit curve
+window_size = 21
 fit_voltages = np.convolve(voltages, np.ones(window_size) / window_size, mode='same')
 fit_Ah_remaining = Ah_remaining.copy()
 
-# Downsample every 10th point for clarity
+# Downsample for clarity
 Ah_remaining = Ah_remaining[::10]
 voltages = np.array(voltages)[::10]
 fit_Ah_remaining = fit_Ah_remaining[::10]
 fit_voltages = fit_voltages[::10]
 
-# Define a trim value to minimize edge effects from convolution
+# Plot
 trim = window_size // 2
-
-# Plot the raw data and the fitted curve
 plt.style.use('bmh')
 plt.figure(figsize=(12, 6))
 plt.plot(Ah_remaining[trim:], voltages[trim:], marker='.', linestyle='-', color='royalblue',
-         alpha=0.5, lw=0.8, label=f"Battery {batt_num}")
+         alpha=0.5, lw=0.8, label=f"Battery {display_name}")
 plt.plot(fit_Ah_remaining[trim:], fit_voltages[trim:], linestyle='-', color='firebrick',
-         lw=2.0, alpha=1, label=f"Battery {batt_num} (Fitted)")
+         lw=2.0, alpha=1, label=f"Battery {display_name} (Fitted)")
 
-# Format the plot
 plt.xlabel("Remaining Charge (Ah)")
 plt.ylabel("Voltage (V)")
-plt.title(f"Battery #{batt_num} Voltage vs. Remaining Charge")
-
-# Set y-ticks from 0V to 15V every 0.3V (like voltage-vs-time plot)
+plt.title(f"Battery {display_name} Voltage vs. Remaining Charge")
 plt.yticks(np.arange(0, 15, 0.3))
-
-# Flip x-axis because remaining charge decreases over time
 plt.gca().invert_xaxis()
-
 plt.legend()
 plt.show()

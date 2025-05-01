@@ -4,75 +4,73 @@ import argparse
 
 # Set up argument parsing
 parser = argparse.ArgumentParser(description="Plot battery voltage over time.")
-parser.add_argument("batt_num", type=int, help="Battery number to plot")
+parser.add_argument("batt_name", type=str, help="Battery number or name (e.g., 1, 4S, 2S)")
 args = parser.parse_args()
 
-# Use the provided batt_num
-batt_num = args.batt_num
-LOG_FILE = f"battery{batt_num}_out.text"
+# Handle custom label mapping
+label_map = {
+    "4S": "battery12",
+    "2S": "battery13"
+}
 
-# Determine correct scaling factor
-SCALE_FACTOR = 3.3 * 5  # 5x voltage divider in all cases
+# Normalize the input
+batt_key = label_map.get(args.batt_name.upper(), f"battery{args.batt_name}")
+LOG_FILE = f"{batt_key}_out.text"
 
-# Create lists to store data
+# Voltage divider scale (multiply ADC reading by this to get real voltage)
+SCALE_FACTOR = 3.3 * 5  # Adjust based on your actual divider
+
+# Data storage
 timestamps = []
 voltages = []
 
-# Read space-separated file (text)
+# Read and process file
 with open(LOG_FILE, "r") as f:
     for line in f:
         try:
             t, v = map(float, line.split())
             if v == 0.0:
                 if timestamps:
-                    break  # if we already have data, stop when voltage is 0.0
+                    break
                 else:
-                    continue  # otherwise skip early 0.0
-            timestamps.append(t / 60)         # convert time to minutes
-            voltages.append(v * SCALE_FACTOR)  # apply scaling
+                    continue
+            timestamps.append(t / 60)
+            voltages.append(v * SCALE_FACTOR)
         except ValueError:
-            continue  # skips any corrupted lines
+            continue
 
-# Shift timestamps so the last recorded time is zero (like the multi-file script)
+# Shift timestamps so end = 0
 if timestamps:
     end_time = timestamps[-1]
     timestamps = [t - end_time for t in timestamps]
 
-# Keep track of the max duration for x-axis scaling
 max_time = abs(timestamps[0]) if timestamps else 1
 
-# Computes a fit curve along the average trend using a moving average
-window_size = 41  # defines a smoothing window size
+# Fit curve (moving average)
+window_size = 41
 fit_voltages = np.convolve(voltages, np.ones(window_size) / window_size, mode='valid')
-fit_timestamps = timestamps[:len(fit_voltages)]  # adjust timestamps accordingly
+fit_timestamps = timestamps[:len(fit_voltages)]
 
-# Downsample every 10th point for clarity
+# Downsample
 timestamps = np.array(timestamps)[::10]
 voltages = np.array(voltages)[::10]
 fit_timestamps = np.array(fit_timestamps)[::10]
 fit_voltages = np.array(fit_voltages)[::10]
 
-# Define the trim amount (to remove convolution edge effects)
+# Plot
 trim = window_size // 2
-
-# Plot the data (trim both arrays from the start so they align)
 plt.style.use('bmh')
 plt.figure(figsize=(12, 5))
-plt.plot(timestamps[trim:], voltages[trim:], marker='.', linestyle='-', color='royalblue',
-         label="Voltage", lw=0.8)
-plt.plot(fit_timestamps[trim:], fit_voltages[trim:], linestyle='-', color='firebrick',
-         label="Voltage Fit", lw=1.2)
+plt.plot(timestamps[trim:], voltages[trim:], marker='.', linestyle='-', color='royalblue', label="Voltage", lw=0.8)
+plt.plot(fit_timestamps[trim:], fit_voltages[trim:], linestyle='-', color='firebrick', label="Voltage Fit", lw=1.2)
 plt.xlabel("Time (min)")
 plt.ylabel("Voltage (V)")
-plt.title(f"Battery #{batt_num} Voltage Over Time")
-# plt.ylim(10, 15)  # commented out, not enforcing y-axis limits
-plt.legend()
+plt.title(f"Battery '{args.batt_name}' Voltage Over Time")
+plt.yticks(np.arange(0, 15, 0.3))
 
-# Set y-ticks every 0.3V
-plt.yticks(np.arange(0, 15, 0.3))  # range from 0V to 15V
-
-# Generate x-ticks dynamically (the axis is negative-to-zero, so we label them as positive values)
+# Format x-axis (positive time labels even though time goes from -max to 0)
 xticks = np.linspace(-max_time, 0, num=10)
-plt.xticks(xticks, labels=[f"{int(abs(tick))}" for tick in xticks])
+plt.xticks(xticks, labels=[f"{int(abs(t))}" for t in xticks])
 
+plt.legend()
 plt.show()
