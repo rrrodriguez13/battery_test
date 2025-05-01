@@ -11,10 +11,14 @@ sensor_value = 2.0V/3.3V (3.3V limit for pico ADC) ~ 0.606
 
 try:
     analogue_input = ADC(Pin(28))  # ADC pin
+    load_switch = Pin(15, Pin.OUT)  # GPIO pin controlling the load (need to add MOSFET, relay, or solid-state switch)
+    load_switch.value(1)  # Enable the load initially
+
     while True:
         sensor_value = analogue_input.read_u16() / 65535  # Normalized [0, 1]
         print(time(), sensor_value)
         if sensor_value < CUTOFF_SENSOR_VALUE:
+            load_switch.value(0)
             break
         sleep(SAMPLE_INTERVAL)
 except KeyboardInterrupt:
