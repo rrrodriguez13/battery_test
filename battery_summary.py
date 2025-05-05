@@ -3,7 +3,7 @@ import numpy as np
 import csv
 
 # defines battery log files
-battery_files = [f"battery{i}_out.text" for i in range(1, 14)]
+battery_files = [f"battery{i}_out.text" for i in range(1, 15)]
 RESISTANCE_EQ = 1.25  # equivalent resistance in Ohms for 4 parallel 5 Ohm resistors
 SAMPLE_INTERVAL = 1  # seconds (data taken once per second)
 
@@ -11,13 +11,14 @@ SAMPLE_INTERVAL = 1  # seconds (data taken once per second)
 advertised_Ah = {
     "battery1": 100, "battery2": 100, "battery3": 100, "battery4": 100, "battery5": 100,
     "battery6": 20, "battery7": 20, "battery8": 20, "battery9": 20, "battery10": 20,
-    "battery11": 20, "battery12": 100, "battery13": 100  # 4S and 2S
+    "battery11": 20, "battery12": 100, "battery13": 100, "battery14": 100
 }
 
 # Optional: Label mapping
 custom_names = {
     "battery12": "4S",
-    "battery13": "2S"
+    "battery13": "2S",
+    "battery14": "battery2b"
 }
 
 battery_data = []
@@ -33,9 +34,11 @@ for file in battery_files:
     with open(file, "r") as f:
         for line in f:
             try:
-                t, v = map(float, line.split())
-                if v == 0.0:
+                t, sensor_value = map(float, line.split())
+                if sensor_value == 0.0:
                     break
+                # Convert normalized sensor reading to battery voltage using 5:1 divider
+                v = sensor_value * 3.3 * 5  # from sensor value to actual voltages (to avoid under-calculating values)
                 timestamps.append(t)
                 voltages.append(v)
             except ValueError:
@@ -56,9 +59,7 @@ for file in battery_files:
     final_voltage = voltages[-1]
 
     currents = [v / RESISTANCE_EQ for v in voltages]
-    battery_currents = [5 * c for c in currents]
-    fit_currents = 5 * (fit_voltages / RESISTANCE_EQ)
-
+    fit_currents = fit_voltages / RESISTANCE_EQ
     fc_mid = 0.5 * (fit_currents[:-1] + fit_currents[1:])
     total_Ah = np.sum(fc_mid * np.diff(timestamps) / 3600)
 
