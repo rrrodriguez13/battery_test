@@ -10,7 +10,9 @@ args = parser.parse_args()
 # Handle custom label mapping
 label_map = {
     "4S": "battery12",
-    "2S": "battery13"
+    "2S": "battery13",
+    "2b": "battery14",
+    "1b": "battery15"
 }
 
 # Normalize the input
@@ -18,7 +20,7 @@ batt_key = label_map.get(args.batt_name.upper(), f"battery{args.batt_name}")
 LOG_FILE = f"{batt_key}_out.text"
 
 # Voltage divider scale (multiply ADC reading by this to get real voltage)
-SCALE_FACTOR = 3.3 * 5  # Adjust based on your actual divider
+SCALE_FACTOR = 3.3 * 5 # Adjust based on your actual divider
 
 # Data storage
 timestamps = []

@@ -15,11 +15,15 @@ args = parser.parse_args()
 # Label mapping
 label_map = {
     "4S": "battery12",
-    "2S": "battery13"
+    "2S": "battery13",
+    "2b": "battery2b",
+    "1b": "battery1b",
 }
 display_map = {
     "battery12": "4S",
-    "battery13": "2S"
+    "battery13": "2S",
+    "battery2b": "2b",
+    "battery1b": "1b",
 }
 
 # Normalize battery key and filename

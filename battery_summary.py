@@ -11,14 +11,15 @@ SAMPLE_INTERVAL = 1  # seconds (data taken once per second)
 advertised_Ah = {
     "battery1": 100, "battery2": 100, "battery3": 100, "battery4": 100, "battery5": 100,
     "battery6": 20, "battery7": 20, "battery8": 20, "battery9": 20, "battery10": 20,
-    "battery11": 20, "battery12": 100, "battery13": 100, "battery14": 100
+    "battery11": 20, "battery12": 100, "battery13": 100, "battery14": 100, "battery15": 100
 }
 
 # Optional: Label mapping
 custom_names = {
     "battery12": "4S",
     "battery13": "2S",
-    "battery14": "battery2b"
+    "battery14": "battery2b",
+    "battery15": "battery1b"
 }
 
 battery_data = []
