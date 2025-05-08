@@ -16,10 +16,10 @@ advertised_Ah = {
 
 # Optional: Label mapping
 custom_names = {
-    "battery12": "4S",
+    "battery14": "4S",
     "battery13": "2S",
-    "battery14": "battery2b",
-    "battery15": "battery1b"
+    "battery2b": "battery2b",
+    "battery1b": "battery1b"
 }
 
 battery_data = []
