@@ -74,7 +74,7 @@ plt.xlabel("Remaining Charge (Ah)")
 plt.ylabel("Voltage (V)")
 plt.title("Battery Voltage vs. Remaining Charge")
 plt.ylim(10, 14.8)
-plt.legend()
+#plt.legend()
 
 # sets y-ticks every 0.3V
 plt.yticks(np.arange(10, 15 + 0.3, 0.3))
