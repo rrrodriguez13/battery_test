@@ -14,7 +14,7 @@ ADC_RESOLUTION = 65535
 FULL_VOLTAGE = 14.6
 EMPTY_VOLTAGE = 12.0  # or 10.0 if you prefer
 BATTERY_CAPACITY_AH = 314  # your battery capacity
-EXPECTED_LOAD_A = 10       # estimated load in amps
+EXPECTED_LOAD_A = 2.9       # estimated load in amps
 
 def read_battery_voltage():
     raw = adc.read_u16()
