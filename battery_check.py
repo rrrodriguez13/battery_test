@@ -3,16 +3,18 @@ from time import sleep
 
 # Voltage divider resistors
 R1 = 15000  # 15k ohms
-R2 = 3900   # 3.9k ohms
+R2 = 3300   # 3x 1.1k ohms in series = 3.3k ohms
 
 # ADC setup
 adc = ADC(Pin(28))  # GP28 / ADC2
 VREF = 3.3
 ADC_RESOLUTION = 65535
 
-# Battery thresholds for 4S LiFePO4
+# Battery parameters
 FULL_VOLTAGE = 14.6
-EMPTY_VOLTAGE = 12.0
+EMPTY_VOLTAGE = 12.0  # or 10.0 if you prefer
+BATTERY_CAPACITY_AH = 330  # your battery capacity
+EXPECTED_LOAD_A = 10       # estimated load in amps
 
 def read_battery_voltage():
     raw = adc.read_u16()
@@ -28,9 +30,20 @@ def battery_percentage(voltage):
     else:
         return int(100 * (voltage - EMPTY_VOLTAGE) / (FULL_VOLTAGE - EMPTY_VOLTAGE))
 
+def time_remaining_hours(percent):
+    remaining_ah = BATTERY_CAPACITY_AH * (percent / 100)
+    if EXPECTED_LOAD_A > 0:
+        hours = remaining_ah / EXPECTED_LOAD_A
+    else:
+        hours = float('inf')
+    return hours
+
 while True:
     vbat = read_battery_voltage()
     percent = battery_percentage(vbat)
-    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%")
+    hours_left = time_remaining_hours(percent)
+
+    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours")
+
     sleep(2)
 
