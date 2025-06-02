@@ -13,10 +13,10 @@ ADC_RESOLUTION = 65535
 # Battery parameters
 FULL_VOLTAGE = 14.6
 EMPTY_VOLTAGE = 12.0  # or 10.0 if you prefer
-BATTERY_CAPACITY_AH = 330  # your battery capacity in Ah
+BATTERY_CAPACITY_AH = 330  # your battery capacity
 
-# Your exact expected load (in WATTS):
-EXPECTED_LOAD_W = 37.71107143  # precise load in watts
+# NOW using WATTS instead of amps!
+EXPECTED_LOAD_W = 37.711  # estimated load in watts
 
 def read_battery_voltage():
     raw = adc.read_u16()
@@ -47,14 +47,12 @@ def time_remaining_hours(percent, voltage):
 
     return hours
 
-# Main loop
 while True:
     vbat = read_battery_voltage()
     percent = battery_percentage(vbat)
     hours_left = time_remaining_hours(percent, vbat)
 
-    # Print nicely formatted output (no timestamp)
-    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours  |  Load: {EXPECTED_LOAD_W:.3f} W")
+    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours  |  Load: {EXPECTED_LOAD_W} W")
 
     sleep(2)
 
