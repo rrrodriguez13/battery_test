@@ -1,6 +1,5 @@
 from machine import ADC, Pin
 from time import sleep
-import time as systime  # for timestamp
 
 # Voltage divider resistors
 R1 = 15000  # 15k ohms
@@ -54,11 +53,8 @@ while True:
     percent = battery_percentage(vbat)
     hours_left = time_remaining_hours(percent, vbat)
 
-    # Optional timestamp
-    timestamp = systime.strftime("%Y-%m-%d %H:%M:%S")
-
-    # Print nicely formatted output
-    print(f"[{timestamp}]  Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours  |  Load: {EXPECTED_LOAD_W:.3f} W")
+    # Print nicely formatted output (no timestamp)
+    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours  |  Load: {EXPECTED_LOAD_W:.3f} W")
 
     sleep(2)
 
