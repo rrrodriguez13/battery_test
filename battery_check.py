@@ -14,9 +14,7 @@ ADC_RESOLUTION = 65535
 FULL_VOLTAGE = 14.6
 EMPTY_VOLTAGE = 12.0  # or 10.0 if you prefer
 BATTERY_CAPACITY_AH = 330  # your battery capacity
-
-# NOW using WATTS instead of amps!
-EXPECTED_LOAD_W = 37.711  # estimated load in watts
+EXPECTED_LOAD_A = 10       # estimated load in amps
 
 def read_battery_voltage():
     raw = adc.read_u16()
@@ -32,27 +30,20 @@ def battery_percentage(voltage):
     else:
         return int(100 * (voltage - EMPTY_VOLTAGE) / (FULL_VOLTAGE - EMPTY_VOLTAGE))
 
-def time_remaining_hours(percent, voltage):
+def time_remaining_hours(percent):
     remaining_ah = BATTERY_CAPACITY_AH * (percent / 100)
-    # Convert watts → amps based on current voltage
-    if voltage > 0:
-        current_load_a = EXPECTED_LOAD_W / voltage
-    else:
-        current_load_a = float('inf')
-
-    if current_load_a > 0:
-        hours = remaining_ah / current_load_a
+    if EXPECTED_LOAD_A > 0:
+        hours = remaining_ah / EXPECTED_LOAD_A
     else:
         hours = float('inf')
-
     return hours
 
 while True:
     vbat = read_battery_voltage()
     percent = battery_percentage(vbat)
-    hours_left = time_remaining_hours(percent, vbat)
+    hours_left = time_remaining_hours(percent)
 
-    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours  |  Load: {EXPECTED_LOAD_W} W")
+    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours")
 
     sleep(2)
 
