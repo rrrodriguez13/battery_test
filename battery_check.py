@@ -13,8 +13,8 @@ ADC_RESOLUTION = 65535
 # Battery parameters
 FULL_VOLTAGE = 13.4
 EMPTY_VOLTAGE = 11.6 # where we want to consider cutting off the battery
-BATTERY_CAPACITY_AH = 314  # battery capacity
-EXPECTED_LOAD_A = 2.9       # estimated load in amps
+BATTERY_CAPACITY_AH = 100 #314  # battery capacity
+EXPECTED_LOAD_A = 10  #2.9       # estimated load in amps
 
 def read_battery_voltage():
     raw = adc.read_u16()
