@@ -11,8 +11,8 @@ VREF = 3.3
 ADC_RESOLUTION = 65535
 
 # Battery parameters
-FULL_VOLTAGE = 14.6
-EMPTY_VOLTAGE = 12.0 # where we want to consider cutting off the battery
+FULL_VOLTAGE = 13.4
+EMPTY_VOLTAGE = 11.6 # where we want to consider cutting off the battery
 BATTERY_CAPACITY_AH = 314  # battery capacity
 EXPECTED_LOAD_A = 2.9       # estimated load in amps
 
