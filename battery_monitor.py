@@ -1,5 +1,5 @@
 from machine import ADC, Pin
-from time import sleep
+from time import sleep, time
 
 # Voltage divider resistors
 R1 = 15000  # 15k ohms
@@ -12,9 +12,9 @@ ADC_RESOLUTION = 65535
 
 # Battery parameters
 FULL_VOLTAGE = 13.4
-EMPTY_VOLTAGE = 11.6 # where we want to consider cutting off the battery
-BATTERY_CAPACITY_AH = 100 #314  # battery capacity
-EXPECTED_LOAD_A = 10  #2.9       # estimated load in amps
+EMPTY_VOLTAGE = 11.6  # where we want to consider cutting off the battery
+BATTERY_CAPACITY_AH = 100
+EXPECTED_LOAD_A = 10  # estimated load in amps
 
 def read_battery_voltage():
     raw = adc.read_u16()
@@ -38,12 +38,17 @@ def time_remaining_hours(percent):
         hours = float('inf')
     return hours
 
+# Print CSV header once
+print("timestamp,voltage,battery_percent,time_remaining_hours")
+
 while True:
     vbat = read_battery_voltage()
     percent = battery_percentage(vbat)
     hours_left = time_remaining_hours(percent)
+    current_time = time()
 
-    print(f"Voltage: {vbat:.2f} V  |  Battery: {percent}%  |  Est. time left: {hours_left:.1f} hours")
+    # Output CSV line
+    print(f"{current_time:.0f},{vbat:.2f},{percent},{hours_left:.2f}")
 
     sleep(2)
 
